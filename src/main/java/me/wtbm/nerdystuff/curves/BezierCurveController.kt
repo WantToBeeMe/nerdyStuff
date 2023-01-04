@@ -62,7 +62,7 @@ object BezierCurveController {
         val item = p.inventory.itemInMainHand
         val itemMeta = item?.itemMeta
         val name : String = itemMeta?.lore!![0].split('[',']')[1]
-        itemMeta.setDisplayName("${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}Create ${ChatColor.RESET}${ChatColor.GRAY}(${bezierCurves[name]?.getPivotSize()})")
+        itemMeta.setDisplayName("${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}Create ${ChatColor.RESET}${ChatColor.GRAY}(${bezierCurves[name]?.getPivotAmount()})")
         item.itemMeta = itemMeta
         p.inventory.setItemInMainHand( item)
     }
@@ -71,7 +71,7 @@ object BezierCurveController {
         val item = p.inventory.itemInMainHand
         val itemMeta = item?.itemMeta
         val name : String = itemMeta?.lore!![0].split('[',']')[1]
-        itemMeta.setDisplayName("${ChatColor.RED}${ChatColor.BOLD}Undo ${ChatColor.RESET}${ChatColor.GRAY}(${bezierCurves[name]?.getPivotSize()})")
+        itemMeta.setDisplayName("${ChatColor.RED}${ChatColor.BOLD}Undo ${ChatColor.RESET}${ChatColor.GRAY}(${bezierCurves[name]?.getPivotAmount()})")
         item.itemMeta = itemMeta
         p.inventory.setItemInMainHand(item)
     }
@@ -86,7 +86,7 @@ object BezierCurveController {
         create.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 1)
         val createMeta = create.itemMeta
         createMeta?.addItemFlags(ItemFlag.HIDE_ENCHANTS)
-        createMeta?.setDisplayName("${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}Create ${ChatColor.RESET}${ChatColor.GRAY}(${bezierCurves[name]?.getPivotSize()})")
+        createMeta?.setDisplayName("${ChatColor.LIGHT_PURPLE}${ChatColor.BOLD}Create ${ChatColor.RESET}${ChatColor.GRAY}(${bezierCurves[name]?.getPivotAmount()})")
         createMeta?.lore = (listOf("${ChatColor.DARK_GRAY}For creating new pivots for${ChatColor.GRAY} [$name]"))
         createMeta?.setCustomModelData(createId)
         create.itemMeta = createMeta
@@ -104,7 +104,7 @@ object BezierCurveController {
         undo.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 1)
         val undoMeta = undo.itemMeta
         undoMeta?.addItemFlags(ItemFlag.HIDE_ENCHANTS)
-        undoMeta?.setDisplayName("${ChatColor.RED}${ChatColor.BOLD}Undo ${ChatColor.RESET}${ChatColor.GRAY}(${bezierCurves[name]?.getPivotSize()})")
+        undoMeta?.setDisplayName("${ChatColor.RED}${ChatColor.BOLD}Undo ${ChatColor.RESET}${ChatColor.GRAY}(${bezierCurves[name]?.getPivotAmount()})")
         undoMeta?.lore = (listOf("${ChatColor.DARK_GRAY}For undoing the last pivots for${ChatColor.GRAY} [$name]"))
         undoMeta?.setCustomModelData(undoId)
         undo.itemMeta = undoMeta

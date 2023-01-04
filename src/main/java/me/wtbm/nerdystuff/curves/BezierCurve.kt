@@ -1,27 +1,23 @@
 package me.wtbm.nerdystuff.curves
 
-import org.bukkit.Color
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.Particle
+import org.bukkit.*
 import org.bukkit.Particle.DustOptions
 import org.bukkit.entity.Player
 
 
 class BezierCurve(lastLocation : Location) {
-    private val baseLines : MutableList<Line> = mutableListOf<Line>();
     private var colorCurve = Color.fromRGB(255, 0, 255)
     private var colorPivot = Color.fromRGB(255, 245, 70)
-    private var curveLocations : MutableList<Location> = mutableListOf<Location>();
+    private var generatedLocations : MutableList<Location> = mutableListOf<Location>();
     private var pivotLocations : MutableList<Location> = mutableListOf<Location>(lastLocation);
     private var spread : Int = 8
     private var spreadMode: SpreadMode = SpreadMode.MOTION
 
-    fun getPivotSize() : Int{
+    fun getPivotAmount() : Int{
         return pivotLocations.size
     }
     fun placePath(block : Material) {
-        curveLocations.forEach(){ loc->
+        generatedLocations.forEach(){ loc->
             loc.world?.setBlockData(loc, block.createBlockData())
         }
     }
@@ -31,26 +27,32 @@ class BezierCurve(lastLocation : Location) {
     }
     fun setSpreadMode(sm : SpreadMode){
         spreadMode = sm
+        generateLocList()
     }
 
     fun addLoc(loc : Location) {
-        val line : Line = Line.new(pivotLocations.last(), loc)
         pivotLocations.add(loc)
-        baseLines.add(line)
         generateLocList()
     }
     fun undoLast(): Boolean{
-        if(baseLines.isEmpty()) return false
+        if(pivotLocations.size <= 1) return false
         pivotLocations.removeLast()
-        baseLines.removeLast()
         generateLocList()
         return true
     }
 
     fun toStrings() : List<String> {
         val list : MutableList<String> = mutableListOf<String>();
-        baseLines.forEach(){
-            list.add(it.toString())
+        for(i in 1 until pivotLocations.size){
+            val start = pivotLocations[i-1]
+            val end = pivotLocations[i]
+            val startX:Double = Math.round(start.x * 10.0) / 10.0
+            val startY:Double = Math.round(start.y * 10.0) / 10.0
+            val startZ:Double = Math.round(start.z * 10.0) / 10.0
+            val endX:Double = Math.round(end.x * 10.0) / 10.0
+            val endY:Double = Math.round(end.y * 10.0) / 10.0
+            val endZ:Double = Math.round(end.z * 10.0) / 10.0
+            list.add("$startX $startY $startZ ${ChatColor.YELLOW}->${ChatColor.RESET} $endX $endY $endZ ")
         }
         return list
     }
@@ -66,23 +68,26 @@ class BezierCurve(lastLocation : Location) {
     }
 
     fun getLocation(T: Double): Location{
-        if(baseLines.isEmpty())return pivotLocations.last()
-        var lines = baseLines
-        while(lines.size != 1){
-            val tempLines : MutableList<Line> = mutableListOf<Line>()
-            for(i in 1 until lines.size){
-                tempLines.add(Line.new(lines[i-1].getLocation(T), lines[i].getLocation(T)))
+        var pivots = pivotLocations
+        while(pivots.size > 1){
+            val tempPivots : MutableList<Location> = mutableListOf<Location>()
+            for(i in 1 until pivots.size){
+                tempPivots.add(locBetween2Locations(pivots[i-1], pivots[i], T))
             }
-            lines = tempLines
+            pivots = tempPivots
         }
-        return lines[0].getLocation(T)
+        return pivots[0]
+    }
+    fun locBetween2Locations(startLoc: Location, endLoc: Location, T: Double): Location{
+        val linearX = (endLoc.x - startLoc.x)*T + startLoc.x
+        val linearY = (endLoc.y - startLoc.y)*T + startLoc.y
+        val linearZ = (endLoc.z - startLoc.z)*T + startLoc.z
+        return Location(startLoc.world,linearX, linearY, linearZ)
     }
 
-    fun generateLocList(amount : Int = baseLines.size *spread){
-        if(baseLines.isEmpty()){
-            curveLocations = mutableListOf<Location>(pivotLocations.last());
-        }
-
+    fun generateLocList(amount : Int = pivotLocations.size *spread){
+        if(pivotLocations.isEmpty()) generatedLocations = pivotLocations
+        //implement with spread modes
         else{
             val tempList : MutableList<Location> = mutableListOf<Location>();
             val interval : Double = 1.0 / amount
@@ -91,12 +96,12 @@ class BezierCurve(lastLocation : Location) {
                 tempList.add(getLocation(current))
                 current += interval
             }
-            curveLocations = tempList
+            generatedLocations = tempList
         }
     }
 
     fun showCurve(p: Player, part : Part = Part.ALL) {
-        if(part == Part.CURVE || part == Part.ALL) curveLocations.forEach(){ loc->
+        if(part == Part.CURVE || part == Part.ALL) generatedLocations.forEach(){ loc->
             p.spawnParticle(Particle.REDSTONE, loc, 50, DustOptions(colorCurve, 1.0f));
         }
         if(part == Part.PIVOT || part == Part.ALL) pivotLocations.forEach(){ loc->
@@ -106,10 +111,3 @@ class BezierCurve(lastLocation : Location) {
     }
 }
 
-enum class SpreadMode {
-    MOTION, EVEN
-}
-
-enum class Part {
-    CURVE, PIVOT, ALL
-}
