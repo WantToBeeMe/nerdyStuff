@@ -1,6 +1,6 @@
-package me.wtbm.nerdystuff.curves
+package me.wtbm.nerdystuff.bezier
 
-enum class SpreadMode {
+enum class IntervalMode {
     MOTION, EVEN
 }
 

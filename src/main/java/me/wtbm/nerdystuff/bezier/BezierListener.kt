@@ -1,11 +1,10 @@
-package me.wtbm.nerdystuff.curves
+package me.wtbm.nerdystuff.bezier
 
-import me.wtbm.nerdystuff.curves.BezierCurveController.putLoc
-import me.wtbm.nerdystuff.curves.BezierCurveController.reworkItemMake
-import me.wtbm.nerdystuff.curves.BezierCurveController.reworkItemMove
-import me.wtbm.nerdystuff.curves.BezierCurveController.reworkItemUndo
-import me.wtbm.nerdystuff.curves.BezierCurveController.undoLast
-import org.bukkit.ChatColor
+import me.wtbm.nerdystuff.bezier.BezierCurveController.putLoc
+import me.wtbm.nerdystuff.bezier.BezierToolsController.reworkItemMake
+import me.wtbm.nerdystuff.bezier.BezierToolsController.reworkItemMove
+import me.wtbm.nerdystuff.bezier.BezierToolsController.reworkItemUndo
+import me.wtbm.nerdystuff.bezier.BezierCurveController.undoLast
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -13,7 +12,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 
 
-object CurveListener : Listener {
+object BezierListener : Listener {
 
 
     @EventHandler(priority = EventPriority.NORMAL) // I know, normal is default, but It's just there, so I don't forget it exists in case I need a lower or higher one
@@ -40,6 +39,8 @@ object CurveListener : Listener {
             p.sendMessage("move for $name")
         }
     }
+
+
 
 
 }

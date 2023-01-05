@@ -1,4 +1,4 @@
-package me.wtbm.nerdystuff.curves
+package me.wtbm.nerdystuff.bezier
 
 import org.bukkit.*
 import org.bukkit.Particle.DustOptions
@@ -10,8 +10,8 @@ class BezierCurve(lastLocation : Location) {
     private var colorPivot = Color.fromRGB(255, 245, 70)
     private var generatedLocations : MutableList<Location> = mutableListOf<Location>();
     private var pivotLocations : MutableList<Location> = mutableListOf<Location>(lastLocation);
-    private var spread : Int = 8
-    private var spreadMode: SpreadMode = SpreadMode.MOTION
+    private var interval : Int = 8
+    private var intervalMode: IntervalMode = IntervalMode.MOTION
 
     fun getPivotAmount() : Int{
         return pivotLocations.size
@@ -22,11 +22,13 @@ class BezierCurve(lastLocation : Location) {
         }
     }
 
-    fun setSpread(new : Int){
-        spread = new
+    fun setInterval(new : Int){
+        interval = new
+        generateLocList()
+
     }
-    fun setSpreadMode(sm : SpreadMode){
-        spreadMode = sm
+    fun setIntervalMode(sm : IntervalMode){
+        intervalMode = sm
         generateLocList()
     }
 
@@ -84,10 +86,14 @@ class BezierCurve(lastLocation : Location) {
         val linearZ = (endLoc.z - startLoc.z)*T + startLoc.z
         return Location(startLoc.world,linearX, linearY, linearZ)
     }
-
-    fun generateLocList(amount : Int = pivotLocations.size *spread){
+    fun generateLocListWithExtra(extraLoc : Location){
+        pivotLocations.add(extraLoc)
+        generateLocList()
+        pivotLocations.remove(extraLoc)
+    }
+    fun generateLocList(amount : Int = pivotLocations.size *interval){
         if(pivotLocations.isEmpty()) generatedLocations = pivotLocations
-        //implement with spread modes
+        //implement with interval modes
         else{
             val tempList : MutableList<Location> = mutableListOf<Location>();
             val interval : Double = 1.0 / amount

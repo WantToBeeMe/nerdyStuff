@@ -1,10 +1,11 @@
 package me.wtbm.nerdystuff
 
-import me.wtbm.nerdystuff.curves.BezierCurve
-import me.wtbm.nerdystuff.curves.BezierCurveController.showCurves
-import me.wtbm.nerdystuff.curves.CurveCommand
-import me.wtbm.nerdystuff.curves.CurveListener
-import me.wtbm.nerdystuff.curves.CurveTabCompleter
+import me.wtbm.nerdystuff.bezier.BezierCurveController.showCurves
+import me.wtbm.nerdystuff.bezier.BezierListener
+import me.wtbm.nerdystuff.bezier.CurveCommand
+import me.wtbm.nerdystuff.bezier.CurveTabCompleter
+import me.wtbm.nerdystuff.bezier.BezierToolsController.toolsTick
+import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.plugin.java.annotation.command.Command
 import org.bukkit.plugin.java.annotation.command.Commands
@@ -13,7 +14,8 @@ import org.bukkit.plugin.java.annotation.plugin.ApiVersion
 import org.bukkit.plugin.java.annotation.plugin.Description
 import org.bukkit.plugin.java.annotation.plugin.Plugin
 import org.bukkit.plugin.java.annotation.plugin.author.Author
-import java.util.*
+import org.bukkit.scheduler.BukkitRunnable
+
 
 @Plugin(name = "NerdyStuff", version ="1.0")
 @ApiVersion(ApiVersion.Target.v1_19)
@@ -36,10 +38,10 @@ class NerdyStuff : JavaPlugin() {
         getCommand("curve")?.setExecutor(CurveCommand)
         getCommand("curve")?.tabCompleter = CurveTabCompleter
 
-        getServer().getPluginManager().registerEvents(CurveListener, this)
+        getServer().getPluginManager().registerEvents(BezierListener, this)
 
-        val id = server.scheduler.scheduleSyncRepeatingTask(instance, { showCurves() }, 0, 8)
-
+        server.scheduler.scheduleSyncRepeatingTask(instance, { showCurves() }, 0, 8)
+        server.scheduler.scheduleSyncRepeatingTask(instance, { toolsTick() }, 20, 20)
     }
 
     override fun onDisable() {}

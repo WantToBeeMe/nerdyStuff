@@ -1,15 +1,14 @@
-package me.wtbm.nerdystuff.curves
+package me.wtbm.nerdystuff.bezier
 
 import me.wtbm.nerdystuff.NerdyStuff
-import me.wtbm.nerdystuff.curves.BezierCurveController.bezierCurves
-import me.wtbm.nerdystuff.curves.BezierCurveController.generatePath
-import me.wtbm.nerdystuff.curves.BezierCurveController.giveTools
-import me.wtbm.nerdystuff.curves.BezierCurveController.putLoc
-import me.wtbm.nerdystuff.curves.BezierCurveController.reCalculate
-import me.wtbm.nerdystuff.curves.BezierCurveController.undoLast
-import me.wtbm.nerdystuff.curves.BezierCurveController.visibleForPlayers
+import me.wtbm.nerdystuff.bezier.BezierCurveController.bezierCurves
+import me.wtbm.nerdystuff.bezier.BezierCurveController.generatePath
+import me.wtbm.nerdystuff.bezier.BezierToolsController.giveTools
+import me.wtbm.nerdystuff.bezier.BezierCurveController.putLoc
+import me.wtbm.nerdystuff.bezier.BezierCurveController.reCalculate
+import me.wtbm.nerdystuff.bezier.BezierCurveController.undoLast
+import me.wtbm.nerdystuff.bezier.BezierCurveController.visibleForPlayers
 import org.bukkit.ChatColor
-import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.command.Command
@@ -17,7 +16,6 @@ import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
-import java.util.*
 
 
 object CurveCommand : CommandExecutor{
@@ -64,11 +62,11 @@ object CurveCommand : CommandExecutor{
 
     private fun reCalc(p: Player, name: String,args: Array<out String> ):Boolean{
         if(args.isNotEmpty()){
-            val spread : Int? = args[0].toIntOrNull()
-            if(spread == null)
+            val interval : Int? = args[0].toIntOrNull()
+            if(interval == null)
                 reCalculate(name)
             else
-                reCalculate(name, spread)
+                reCalculate(name, interval)
         }
         else reCalculate(name)
         p.sendMessage("$title${ChatColor.DARK_GREEN}$name has been re-calculated")
@@ -86,7 +84,7 @@ object CurveCommand : CommandExecutor{
         p.sendMessage("  * ${ChatColor.YELLOW}get:${ChatColor.RESET} get the information of the curve")
         p.sendMessage("  * ${ChatColor.YELLOW}generate:${ChatColor.RESET} generates the curve in to block ${ChatColor.GRAY}(also deletes the curves information)")
         p.sendMessage("  * ${ChatColor.YELLOW}undo:${ChatColor.RESET} undo the last position you added")
-        p.sendMessage("  * ${ChatColor.YELLOW}reCalculate:${ChatColor.RESET} recalculates the curve ${ChatColor.GRAY}(put an extra number to determent the spread, default 8)")
+        p.sendMessage("  * ${ChatColor.YELLOW}reCalculate:${ChatColor.RESET} recalculates the curve ${ChatColor.GRAY}(put an extra number to determent the interval, default 8)")
         p.sendMessage("  * ${ChatColor.YELLOW}tools:${ChatColor.RESET} get tools for the current curve")
 
         return true;
