@@ -1,13 +1,13 @@
-package me.wtbm.nerdystuff.bezier
+package me.wtbm.nerdystuff.old_bezier
 
 import me.wtbm.nerdystuff.NerdyStuff
-import me.wtbm.nerdystuff.bezier.BezierCurveController.bezierCurves
-import me.wtbm.nerdystuff.bezier.BezierCurveController.generatePath
-import me.wtbm.nerdystuff.bezier.BezierToolsController.giveTools
-import me.wtbm.nerdystuff.bezier.BezierCurveController.putLoc
-import me.wtbm.nerdystuff.bezier.BezierCurveController.reCalculate
-import me.wtbm.nerdystuff.bezier.BezierCurveController.undoLast
-import me.wtbm.nerdystuff.bezier.BezierCurveController.visibleForPlayers
+import me.wtbm.nerdystuff.old_bezier.OldBezierCurveController.bezierCurves
+import me.wtbm.nerdystuff.old_bezier.OldBezierCurveController.generatePath
+import me.wtbm.nerdystuff.old_bezier.OldBezierToolsController.giveTools
+import me.wtbm.nerdystuff.old_bezier.OldBezierCurveController.putLoc
+import me.wtbm.nerdystuff.old_bezier.OldBezierCurveController.reCalculate
+import me.wtbm.nerdystuff.old_bezier.OldBezierCurveController.undoLast
+import me.wtbm.nerdystuff.old_bezier.OldBezierCurveController.visibleForPlayers
 import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.Material
@@ -18,7 +18,7 @@ import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
 
 
-object CurveCommand : CommandExecutor{
+object OldCurveCommand : CommandExecutor{
     private val plugin get() = NerdyStuff.instance
     private val title = "${ChatColor.GRAY}[${ChatColor.GOLD}Curves${ChatColor.GRAY}]${ChatColor.RESET} "
 
@@ -114,14 +114,14 @@ object CurveCommand : CommandExecutor{
     private fun enable(p: Player, args: Array<out String>): Boolean{
 
         if(args.isEmpty()){
-            visibleForPlayers[p] = Part.ALL
+            visibleForPlayers[p] = OldPart.ALL
             p.sendMessage("$title${ChatColor.GREEN}you can see curves and pivots now")
             return true
         }
         try{
-            val part = Part.valueOf(args[0].uppercase())
+            val part = OldPart.valueOf(args[0].uppercase())
             visibleForPlayers[p] = part
-            val text = if(part == Part.CURVE) "curves" else if(part == Part.PIVOT) "pivots" else "curves and pivots"
+            val text = if(part == OldPart.CURVE) "curves" else if(part == OldPart.PIVOT) "pivots" else "curves and pivots"
             p.sendMessage("$title${ChatColor.GREEN}you can see $text now")
         }catch (e: Exception){
             p.sendMessage("$title${ChatColor.DARK_RED}${args[0]} is not valid, chose between ${ChatColor.RED}all, curve, pivot")
@@ -147,7 +147,7 @@ object CurveCommand : CommandExecutor{
     }
 
     private fun reset(p: Player, name :String) : Boolean {
-        val removed : BezierCurve? = bezierCurves.remove(name)
+        val removed : OldBezierCurve? = bezierCurves.remove(name)
         if(removed == null)  p.sendMessage("$title${ChatColor.DARK_RED}no curve with the name: $name")
         else p.sendMessage("$title${ChatColor.GREEN}resetting $name")
         return true
@@ -205,7 +205,7 @@ object CurveCommand : CommandExecutor{
             p.sendMessage("$title${ChatColor.DARK_RED}that's not a valid color or part")
             return true
         }
-        val part : Part = try{Part.valueOf(args[0].uppercase()) } catch (e: Exception){
+        val part : OldPart = try{OldPart.valueOf(args[0].uppercase()) } catch (e: Exception){
             p.sendMessage("$title${ChatColor.DARK_RED}${args[0]} is not valid, chose between ${ChatColor.RED}all, curve, pivot")
             return true
         }
@@ -233,7 +233,7 @@ object CurveCommand : CommandExecutor{
 }
 
 
-object CurveTabCompleter : TabCompleter {
+object OldCurveTabCompleter : TabCompleter {
 
     override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>): List<String> {
         val list : MutableList<String> = mutableListOf<String>();
@@ -251,7 +251,7 @@ object CurveTabCompleter : TabCompleter {
         }
         if(args.size < 2 || args[0] == "disable" || args[0] == "help" || args[0] == "list" || args[0] == "<name") return list
         if(args[0] == "enable" &&  args[1] == ""){
-            return Part.values().map { it.toString().lowercase()}
+            return OldPart.values().map { it.toString().lowercase()}
         }
         if (args[1] == "") {
             list.add("generate")
@@ -269,7 +269,7 @@ object CurveTabCompleter : TabCompleter {
             return Material.values().filter { it.isBlock }.map { it.toString().lowercase()}
         }
         if(args[1] == "color" &&  args[2] == ""){
-            return Part.values().map { it.toString().lowercase()}
+            return OldPart.values().map { it.toString().lowercase()}
         }
         if(args[1] == "put" &&  args[2] == ""){
             list.add("target")

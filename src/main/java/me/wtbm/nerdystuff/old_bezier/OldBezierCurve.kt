@@ -1,17 +1,17 @@
-package me.wtbm.nerdystuff.bezier
+package me.wtbm.nerdystuff.old_bezier
 
 import org.bukkit.*
 import org.bukkit.Particle.DustOptions
 import org.bukkit.entity.Player
 
 
-class BezierCurve(lastLocation : Location) {
+class OldBezierCurve(lastLocation : Location) {
     private var colorCurve = Color.fromRGB(255, 0, 255)
     private var colorPivot = Color.fromRGB(255, 245, 70)
     private var generatedLocations : MutableList<Location> = mutableListOf<Location>();
     private var pivotLocations : MutableList<Location> = mutableListOf<Location>(lastLocation);
     private var interval : Int = 8
-    private var intervalMode: IntervalMode = IntervalMode.MOTION
+    private var intervalMode: OldIntervalMode = OldIntervalMode.MOTION
 
     fun getPivotAmount() : Int{
         return pivotLocations.size
@@ -27,7 +27,7 @@ class BezierCurve(lastLocation : Location) {
         generateLocList()
 
     }
-    fun setIntervalMode(sm : IntervalMode){
+    fun setIntervalMode(sm : OldIntervalMode){
         intervalMode = sm
         generateLocList()
     }
@@ -60,10 +60,10 @@ class BezierCurve(lastLocation : Location) {
     }
 
 
-    fun setColor(r: Int, g: Int, b: Int, part : Part = Part.CURVE) : Boolean{
+    fun setColor(r: Int, g: Int, b: Int, part : OldPart = OldPart.CURVE) : Boolean{
         if(r in 0..255 && g in 0..255 && b in 0..255) {
-            if(part == Part.CURVE || part == Part.ALL) colorCurve = Color.fromRGB(r, g, b)
-            if(part == Part.PIVOT || part == Part.ALL) colorPivot = Color.fromRGB(r, g, b)
+            if(part == OldPart.CURVE || part == OldPart.ALL) colorCurve = Color.fromRGB(r, g, b)
+            if(part == OldPart.PIVOT || part == OldPart.ALL) colorPivot = Color.fromRGB(r, g, b)
             return true;
         }
         else return false;
@@ -106,11 +106,11 @@ class BezierCurve(lastLocation : Location) {
         }
     }
 
-    fun showCurve(p: Player, part : Part = Part.ALL) {
-        if(part == Part.CURVE || part == Part.ALL) generatedLocations.forEach(){ loc->
+    fun showCurve(p: Player, part : OldPart = OldPart.ALL) {
+        if(part == OldPart.CURVE || part == OldPart.ALL) generatedLocations.forEach(){ loc->
             p.spawnParticle(Particle.REDSTONE, loc, 50, DustOptions(colorCurve, 1.0f));
         }
-        if(part == Part.PIVOT || part == Part.ALL) pivotLocations.forEach(){ loc->
+        if(part == OldPart.PIVOT || part == OldPart.ALL) pivotLocations.forEach(){ loc->
             p.spawnParticle(Particle.REDSTONE, loc, 50, DustOptions(colorPivot, 1.0f));
         }
 

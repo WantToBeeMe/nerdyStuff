@@ -1,19 +1,15 @@
-package me.wtbm.nerdystuff.bezier
+package me.wtbm.nerdystuff.old_bezier
 
 import me.wtbm.nerdystuff.NerdyStuff
-import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemFlag
-import org.bukkit.inventory.ItemStack
 import java.util.HashMap
 
-object BezierCurveController {
+object OldBezierCurveController {
     val plugin get() = NerdyStuff.instance
-    val visibleForPlayers : MutableMap<Player, Part> = HashMap()
-    var bezierCurves: MutableMap<String, BezierCurve> = HashMap()
+    val visibleForPlayers : MutableMap<Player, OldPart> = HashMap()
+    var bezierCurves: MutableMap<String, OldBezierCurve> = HashMap()
     val createId = 6234265
     val undoId = 4234265
     val moveId = 3234265
@@ -37,7 +33,7 @@ object BezierCurveController {
         if(contains)
             bezierCurves[name]?.addLoc(location)
         else
-            bezierCurves[name] = BezierCurve(location)
+            bezierCurves[name] = OldBezierCurve(location)
         return contains
     }
 
