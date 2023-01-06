@@ -2,6 +2,7 @@ package me.wtbm.nerdystuff.bezierCurves
 
 import me.wtbm.nerdystuff.NerdyStuff
 import org.bukkit.Location
+import kotlin.math.sqrt
 
 class Point(var x: Double, var y: Double, var z:Double, var type : PointTypes = PointTypes.CONTROL , var rotation : Int = 0) {
 
@@ -21,6 +22,11 @@ class Point(var x: Double, var y: Double, var z:Double, var type : PointTypes = 
         val lr = ((1-t)*rotation + t*p.rotation).toInt()
         return Point(lx,ly,lz,PointTypes.CONTROL,lr)
     }
+
+    fun distanceTo(p:Point) : Double {
+        return sqrt((x - p.x)*(x - p.x) + (y - p.y)*(y - p.y) + (z - p.z)*(z - p.z))
+    }
+
 
     fun changeLocation(loc: Location){
         x = loc.x

@@ -8,7 +8,7 @@ class CubicBezierCurve(loc : Location) {
         Point.newPoint(loc, PointTypes.ANCHOR),
         Point.newPoint(loc),
         Point.newPoint(loc),
-        Point.newPoint(loc)
+        Point.newPoint(loc, PointTypes.SPLIT)
     )
     val world : World? = loc.world
 
@@ -74,7 +74,7 @@ class CubicBezierCurve(loc : Location) {
                 6*t*points[3].rotation).toInt()
         return Point(ax,ay,az,PointTypes.ACCELERATION,ar)
     }
-    fun getJolt(): Point{ //P'''(t)   also no idea when you would ever need this lol
+    fun getJolt(): Point{ //P'''(t)   also no idea when you would ever need this lol, but it exists cause its possible
         val jx =(-6)*points[0].x + //p1
                 (18)*points[1].x + //p2
                 (-18)*points[2].x + //p3
@@ -93,4 +93,20 @@ class CubicBezierCurve(loc : Location) {
                 (6)*points[3].rotation)
         return Point(jx,jy,jz,PointTypes.JOLT,jr)
     }
+
+    //generates a cumulative Distance LookUpTable that translates a distance in to a T value
+    fun generateDistanceLUTForSize(ts : Int = (points[0].distanceTo(points[1]) + points[1].distanceTo(points[2]) + points[2].distanceTo(points[3])).toInt()) : MutableMap<Double, Double>?{
+        if(ts < 2) return null
+        val s = 1.0 / ts;
+        var currentT = s
+        var currentDistance = 0.0
+        val list: MutableMap<Double, Double> = hashMapOf( Pair(0.0, 0.0))
+        while(currentT < 1.0){
+            currentDistance += pointAtT(currentT-s).distanceTo(pointAtT(currentT))
+            list.put(currentT, currentDistance)
+            currentT += s
+        }
+        return list
+    }
+
 }

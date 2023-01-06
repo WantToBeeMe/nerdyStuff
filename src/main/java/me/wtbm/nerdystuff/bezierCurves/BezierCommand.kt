@@ -56,14 +56,14 @@ object BezierTabCompleter : TabCompleter {
         if (sender !is Player || args.isEmpty())
             return list
 
-        var keyWords: MutableMap<String, List<String>> = hashMapOf(
+        val keyWords: MutableMap<String, List<String>> = hashMapOf(
             Pair("help", listOf("0")),
             Pair("new", listOf("0")),
             Pair("delete",listOf("0")),
             Pair("build", listOf("0")),
             Pair("tools", listOf("0")),
             Pair("curve", listOf("new")),
-            Pair("spline", listOf("new"))
+            Pair("spline", listOf("new")),
         )
         //list.forEach(){
         //    keyWords.put(it,listOf("curve", "spline", "delete", "build", "tools")
@@ -77,13 +77,13 @@ object BezierTabCompleter : TabCompleter {
                 val maby = cons.toIntOrNull()
                 if(maby != null){
                     if(maby == size-1 && pair.key.startsWith(lastArg)){
-                        list.add(pair.key.removePrefix(lastArg))
+                        list.add(pair.key)
                         return@pairs
                     }
                 }
                 else if(secondLastArg != null){
                     if(cons == secondLastArg && pair.key.startsWith(lastArg)){
-                        list.add(pair.key.removePrefix(lastArg))
+                        list.add(pair.key)
                         return@pairs
                     }
                 }
