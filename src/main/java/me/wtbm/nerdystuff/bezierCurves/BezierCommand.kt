@@ -66,7 +66,7 @@ object BezierTabCompleter : TabCompleter {
             Pair("spline", listOf("new"))
         )
         //list.forEach(){
-        //    keyWords.put(it,listOf("new", "delete", "build", "tools")
+        //    keyWords.put(it,listOf("curve", "spline", "delete", "build", "tools")
         //}
         val size = args.size
         val lastArg = args.last()
