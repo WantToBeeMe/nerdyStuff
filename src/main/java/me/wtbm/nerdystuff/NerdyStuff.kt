@@ -1,5 +1,7 @@
 package me.wtbm.nerdystuff
 
+import me.wtbm.nerdystuff.bezierCurves.BezierCommand
+import me.wtbm.nerdystuff.bezierCurves.BezierTabCompleter
 import me.wtbm.nerdystuff.old_bezier.OldBezierCurveController.showCurves
 import me.wtbm.nerdystuff.old_bezier.OldBezierListener
 import me.wtbm.nerdystuff.old_bezier.OldCurveCommand
@@ -21,7 +23,8 @@ import org.bukkit.plugin.java.annotation.plugin.author.Author
 @Description("you know that subject no one liked at school, yea, that (math lol)")
 
 @Commands(
-    Command(name = "oldCurve", aliases = ["oc"], usage = "/oldCurve help")
+    Command(name = "oldCurve", aliases = ["oc"], usage = "/oldCurve help"),
+    Command(name = "bezier", aliases = ["b"], usage = "/bezier help")
 )
 
 @Library("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.22") //kotlin !!
@@ -35,6 +38,9 @@ class NerdyStuff : JavaPlugin() {
         instance = this
         getCommand("oldCurve")?.setExecutor(OldCurveCommand)
         getCommand("oldCurve")?.tabCompleter = OldCurveTabCompleter
+
+        getCommand("bezier")?.setExecutor(BezierCommand)
+        getCommand("bezier")?.tabCompleter = BezierTabCompleter
 
         getServer().getPluginManager().registerEvents(OldBezierListener, this)
 
