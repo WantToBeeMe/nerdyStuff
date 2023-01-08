@@ -3,18 +3,23 @@ package me.wtbm.nerdystuff.bezierCurves
 import org.bukkit.Location
 import org.bukkit.World
 
-class CubicBezierCurve(loc : Location) {
+class CubicBezierCurve(ancLoc : Location,
+                       conLoc1 : Location = ancLoc.clone().add((-10..10).random().toDouble(),(-10..10).random().toDouble(),(-10..10).random().toDouble()),
+                       knotLoc : Location = ancLoc.clone().add((-10..10).random().toDouble(),(-10..10).random().toDouble(),(-10..10).random().toDouble()),
+                       conLoc2 : Location = knotLoc.clone().add((-10..10).random().toDouble(),(-10..10).random().toDouble(),(-10..10).random().toDouble())
+) {
     var points: Array<Point> = arrayOf(
-        Point.newPoint(loc, PointTypes.ANCHOR),
-        Point.newPoint(loc),
-        Point.newPoint(loc),
-        Point.newPoint(loc, PointTypes.SPLIT)
+        Point.newPoint(ancLoc, PointTypes.ANCHOR),
+        Point.newPoint(conLoc1),
+        Point.newPoint(conLoc2),
+        Point.newPoint(knotLoc, PointTypes.KNOT)
     )
-    val world : World? = loc.world
+    var continuity : Continuity = Continuity.CONNECTED
+    var LUT : MutableMap<Double, Double>? = null  //a cumulative Distance LookUpTable that translates a distance in to a T value
 
-    fun locationAtT(t: Double) : Location{
-        val point = pointAtT(t)
-        return Location(world, point.x, point.y, point.z )
+
+    fun locationAtT(t: Double, world : World?) : Location{
+        return pointAtT(t).toLocation(world)
     }
 
     fun pointAtT(t: Double) : Point{ //P(t)
@@ -95,18 +100,66 @@ class CubicBezierCurve(loc : Location) {
     }
 
     //generates a cumulative Distance LookUpTable that translates a distance in to a T value
-    fun generateDistanceLUTForSize(ts : Int = (points[0].distanceTo(points[1]) + points[1].distanceTo(points[2]) + points[2].distanceTo(points[3])).toInt()) : MutableMap<Double, Double>?{
-        if(ts < 2) return null
-        val s = 1.0 / ts;
+    fun generateDistLUT(amount : Int = (points[0].distanceTo(points[1]) + points[1].distanceTo(points[2]) + points[2].distanceTo(points[3])).toInt()) {
+        if(amount < 2) return
+        val s = 1.0 / amount;
         var currentT = s
         var currentDistance = 0.0
         val list: MutableMap<Double, Double> = hashMapOf( Pair(0.0, 0.0))
-        while(currentT < 1.0){
+        for(i in 1..amount){
+            if(i == amount) currentT = 1.0
             currentDistance += pointAtT(currentT-s).distanceTo(pointAtT(currentT))
             list.put(currentT, currentDistance)
             currentT += s
         }
-        return list
+        LUT =  list
     }
+
+    fun lengthFromLUT() : Double {
+        LUT?.let{
+            val fullLength =  LUT!!.get(1.0)
+            if (fullLength != null) {
+                return fullLength
+            }
+        }
+        return -1.0
+    }
+
+    //translates distance to T value based on the LookUp Table
+    fun distToT(dist : Double) : Double{
+        LUT?.let{
+            val fullLength =  lengthFromLUT()
+            if (fullLength > -1.0) {
+                if((dist > 0.0) && (dist < fullLength)){
+                    var underDist = 0.0
+                    var upperDist = fullLength
+                    var underT = 0.0
+                    var upperT = 1.0
+                    LUT!!.forEach(){pair->
+                        if(pair.value > dist && pair.value < upperDist) {
+                            upperDist = pair.value
+                            upperT = pair.key
+                        }
+                        if(pair.value < dist && pair.value > underDist) {
+                            underDist = pair.value
+                            underT = pair.key
+                        }
+                    }
+                    return ((fullLength-underDist) * ((upperT-underT)/(upperDist-underDist))) + underT
+                }
+            }
+        }
+        return -1.0
+    }
+
+    //translates percentage to T value based on the LookUp Table
+    fun percToT(percentage: Double) : Double{
+        val fullLength = lengthFromLUT()
+        if(fullLength > -1.0){
+            return distToT((fullLength/100.0)*percentage)
+        }
+        else return -1.0
+    }
+
 
 }

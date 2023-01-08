@@ -1,12 +1,11 @@
 package me.wtbm.nerdystuff
 
 import me.wtbm.nerdystuff.bezierCurves.BezierCommand
+import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.showBezier
 import me.wtbm.nerdystuff.bezierCurves.BezierTabCompleter
-import me.wtbm.nerdystuff.old_bezier.OldBezierCurveController.showCurves
-import me.wtbm.nerdystuff.old_bezier.OldBezierListener
+import me.wtbm.nerdystuff.bezierCurves.BezierToolsListener
 import me.wtbm.nerdystuff.old_bezier.OldCurveCommand
 import me.wtbm.nerdystuff.old_bezier.OldCurveTabCompleter
-import me.wtbm.nerdystuff.old_bezier.OldBezierToolsController.toolsTick
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.plugin.java.annotation.command.Command
 import org.bukkit.plugin.java.annotation.command.Commands
@@ -23,7 +22,7 @@ import org.bukkit.plugin.java.annotation.plugin.author.Author
 @Description("you know that subject no one liked at school, yea, that (math lol)")
 
 @Commands(
-    Command(name = "oldCurve", aliases = ["oc"], usage = "/oldCurve help"),
+    //Command(name = "oldCurve", aliases = ["oc"], usage = "/oldCurve help"),
     Command(name = "bezier", aliases = ["b"], usage = "/bezier help")
 )
 
@@ -36,18 +35,20 @@ class NerdyStuff : JavaPlugin() {
 
     override fun onEnable() {
         instance = this
-        getCommand("oldCurve")?.setExecutor(OldCurveCommand)
-        getCommand("oldCurve")?.tabCompleter = OldCurveTabCompleter
+        //getCommand("oldCurve")?.setExecutor(OldCurveCommand)
+        //getCommand("oldCurve")?.tabCompleter = OldCurveTabCompleter
 
         getCommand("bezier")?.setExecutor(BezierCommand)
         getCommand("bezier")?.tabCompleter = BezierTabCompleter
 
-        getServer().getPluginManager().registerEvents(OldBezierListener, this)
+        getServer().getPluginManager().registerEvents(BezierToolsListener, this)
 
-        server.scheduler.scheduleSyncRepeatingTask(instance, { showCurves() }, 0, 8)
-        server.scheduler.scheduleSyncRepeatingTask(instance, { toolsTick() }, 20, 20)
+        server.scheduler.scheduleSyncRepeatingTask(instance, { showBezier() }, 0, 10)
+        //server.scheduler.scheduleSyncRepeatingTask(instance, { showCurves() }, 0, 8)
+        //server.scheduler.scheduleSyncRepeatingTask(instance, { toolsTick() }, 20, 20)
     }
 
     override fun onDisable() {}
 
 }
+
