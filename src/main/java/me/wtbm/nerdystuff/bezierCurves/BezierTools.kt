@@ -2,7 +2,6 @@ package me.wtbm.nerdystuff.bezierCurves
 
 import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.getSplines
 import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.removeLast
-import me.wtbm.nerdystuff.old_bezier.OldBezierCurveController
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
@@ -122,6 +121,14 @@ object BezierTools {
         else{
             p.sendMessage("${title(name)} nothing yet")
         }
+    }
+
+    fun isHoldingMoveMake(p: Player) : Boolean
+    {
+        val item: ItemStack = p.inventory.itemInMainHand
+        val meta = item.itemMeta ?: return false
+        if(meta.lore?.isEmpty() ?: return false ) return false
+        return meta.customModelData == addMoveId
     }
 
     fun giveTools(p: Player, name:String){

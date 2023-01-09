@@ -6,7 +6,6 @@ import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.createNewSpline
 import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.getSplines
 import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.tryDeleteSpline
 import me.wtbm.nerdystuff.bezierCurves.BezierTools.giveTools
-import me.wtbm.nerdystuff.old_bezier.OldBezierCurve
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -40,9 +39,26 @@ object BezierCommand : CommandExecutor{
         if(args[0] == "list") return list(sender, args.copyOfRange(1, args.size))
         if(args[0] == "delete") return delete(sender, args.copyOfRange(1, args.size))
         if(args[0] == "tools") return tools(sender, args.copyOfRange(1,args.size))
-
-
+        if(args[0] == "options") return options(sender, args.copyOfRange(1,args.size))
         return true;
+    }
+
+    private fun options(p: Player, args: Array<out String>) : Boolean{
+        if(args.size < 2){
+            p.sendMessage("$title$r specify which one you want to get tools for ${hr("/bezier options <name> <option>")}")
+            return true
+        }
+
+        if(getSplines().containsKey(args[0])){
+            if(args[1].lowercase() == "makeint" )
+                return true
+
+            return true
+        }
+        else{
+            p.sendMessage("$title ${hr(args[0])} doesn't exist, therefore options cant be changed")
+            return true
+        }
     }
 
     private fun tools(p: Player, args: Array<out String>) : Boolean {
@@ -106,11 +122,11 @@ object BezierCommand : CommandExecutor{
             p.sendMessage("$title$r select what you want to do ${hr("/list [curve/spline]")}")
             return true
         }
-        else if(args[0] == "curve"){
+        else if(args[0].lowercase() == "curve"){
             p.sendMessage("$title$g cool, not implemented yet")
             return true
         }
-        else if(args[0] == "spline"){
+        else if(args[0].lowercase() == "spline"){
             val splines = getSplines()
             p.sendMessage("${title} ${help(splines.size.toString())} total of splines")
             splines.forEach(){spline->
@@ -154,9 +170,11 @@ object BezierTabCompleter : TabCompleter {
             Pair("list", listOf("0")),
             Pair("curve", listOf("new", "list")),
             Pair("spline", listOf("new", "list")),
+            Pair("options", listOf("0")),
+            Pair("makeInt", getSplines().keys.toList() )
         )
         getSplines().forEach(){spline->
-            keyWords[spline.key] = listOf("delete", "build", "tools")
+            keyWords[spline.key] = listOf("delete", "build", "tools", "options")
         }
 
         val size = args.size
@@ -167,13 +185,13 @@ object BezierTabCompleter : TabCompleter {
             pair.value.forEach constrains@ {cons->
                 val maby = cons.toIntOrNull()
                 if(maby != null){
-                    if(maby == size-1 && pair.key.startsWith(lastArg)){
+                    if(maby == size-1 && pair.key.lowercase().startsWith(lastArg.lowercase())){
                         list.add(pair.key)
                         return@pairs
                     }
                 }
                 else if(secondLastArg != null){
-                    if(cons == secondLastArg && pair.key.startsWith(lastArg)){
+                    if(cons == secondLastArg && pair.key.lowercase().startsWith(lastArg.lowercase())){
                         list.add(pair.key)
                         return@pairs
                     }

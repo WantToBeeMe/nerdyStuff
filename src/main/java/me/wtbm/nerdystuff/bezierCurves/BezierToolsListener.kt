@@ -6,7 +6,6 @@ import me.wtbm.nerdystuff.bezierCurves.BezierTools.RemoveItem
 import me.wtbm.nerdystuff.bezierCurves.BezierTools.continuityId
 import me.wtbm.nerdystuff.bezierCurves.BezierTools.addMoveId
 import me.wtbm.nerdystuff.bezierCurves.BezierTools.addMoveItem
-import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener

@@ -25,18 +25,17 @@ class BezierSpline(loc: Location) {
         return true
     }
 
-    fun lastLoc() : Location{
-        return cubicBezierCurve.last().points[3].toLocation(world)
-    }
-    fun firstLoc() : Location{
-        return cubicBezierCurve.first().points[0].toLocation(world)
-    }
+    fun lastLoc() : Location = cubicBezierCurve.last().points[3].toLocation(world)
+
+    fun firstLoc() : Location = cubicBezierCurve.first().points[0].toLocation(world)
 
     fun locAtU(u : Double) : Location{
         val t = u%1
         val index = u.toInt() % cubicBezierCurve.size
-        return cubicBezierCurve[index].locationAtT(t, world)
+        return cubicBezierCurve[index].pointAtT(t).toLocation(world)
     }
+
+    fun makeInt() = cubicBezierCurve.forEach(){ it.makeInt() }
 
     fun addCurve(c: Continuity){
         val last = cubicBezierCurve.last().points[3]
@@ -114,11 +113,11 @@ class BezierSpline(loc: Location) {
 
     fun showToPlayer(p: Player){
         generatedLocations.forEach(){loc->
-            p.spawnParticle(Particle.REDSTONE,loc.key, 50,loc.value)
+            p.spawnParticle(Particle.REDSTONE,loc.key, 20,loc.value)
         }
         extraLocations.forEach(){loc->
             if(p.location.distanceSquared(loc.key) < 400) //25^2 = 625  //20^2 = 400
-                p.spawnParticle(Particle.REDSTONE,loc.key, 50,loc.value)
+                p.spawnParticle(Particle.REDSTONE,loc.key, 20,loc.value)
         }
     }
 }
