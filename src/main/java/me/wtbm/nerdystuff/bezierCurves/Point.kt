@@ -2,11 +2,10 @@ package me.wtbm.nerdystuff.bezierCurves
 
 import org.bukkit.Location
 import org.bukkit.World
+import org.bukkit.util.Vector
 import kotlin.math.sqrt
 
 class Point(var x: Double, var y: Double, var z:Double, var type : PointTypes = PointTypes.CONTROL , var rotation : Int = 0) {
-
-
 
     operator fun plus(p: Point) : Point = Point(x+p.x, y+p.y, z+p.z , PointTypes.CONTROL, rotation+p.rotation)
     //operator fun minus(p: Point) : Point = Point(x-p.x, y-p.y, z-p.z , PointTypes.CONTROL, rotation-p.rotation)
@@ -22,6 +21,7 @@ class Point(var x: Double, var y: Double, var z:Double, var type : PointTypes = 
     fun distanceTo(p:Point) : Double = sqrt((x - p.x)*(x - p.x) + (y - p.y)*(y - p.y) + (z - p.z)*(z - p.z))
     fun getMirrorFrom(p:Point) : Point = Point(this.x+(this.x-p.x),this.y+(this.y-p.y),this.z+(this.z-p.z),PointTypes.CONTROL)
     fun toLocation(world : World?) : Location = Location(world, x, y, z)
+    fun toVector() : Vector = Vector(x,y,z)
 
     fun getAlignedFrom(p:Point) : Point{
         val multiply : Double = 0.01+((0..20).random().toDouble()/10)

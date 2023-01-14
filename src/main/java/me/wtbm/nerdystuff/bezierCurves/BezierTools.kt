@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack
 object BezierTools {
     val continuityId = 800
     val RemoveId = 700
-    val addMoveId = 600
+    val moveMakeId = 600
     val lg = "${ChatColor.GRAY}"
     val dg = "${ChatColor.DARK_GRAY}"
     val ye = "${ChatColor.YELLOW}"
@@ -70,7 +70,7 @@ object BezierTools {
         val item = p.inventory.itemInMainHand
         val itemMeta = item.itemMeta
         val name : String = itemMeta?.lore!!.last().split('[',']')[1]
-        val value = itemMeta.customModelData%addMoveId
+        val value = itemMeta.customModelData%moveMakeId
         var continuity = Continuity.MIRRORED
             run loop@{
                 p.inventory.contents.forEach contin@{ stack ->
@@ -93,7 +93,35 @@ object BezierTools {
                 }
         }
         if(left){
-            p.sendMessage("${title(name)} not implemented yet")
+            if(isHoldingMoveMake(p)){
+                val loc = getSplines()[name]?.lookingAtWhatLoc(p)
+                if(loc != null){
+                    itemMeta.setDisplayName("${ChatColor.WHITE}${ChatColor.BOLD}Move${ChatColor.RESET}$lg (C:${loc.first} - P:${loc.second})")
+                    itemMeta.setCustomModelData(moveMakeId+1)
+                    itemMeta.lore = (listOf("${dg}Left:$lg on control point to correct the mode","${dg}Right:$lg change mode","${dg}Spline:$lg [$name] <${loc.first},${loc.second}>"))
+                    item.itemMeta = itemMeta
+                    item.type = Material.SPECTRAL_ARROW
+                    p.inventory.setItemInMainHand( item)
+                    p.sendMessage("${title(name)} Moving Point: $ye${loc.second} ${ChatColor.WHITE}from Curve: $ye${loc.first}")
+                    return
+                }
+                else{
+                    p.sendMessage("${title(name)} there is no ControlPoint there to move")
+                }
+            }
+            else if(isUsingMoveMake(p) != null){
+                itemMeta.setDisplayName("${ChatColor.WHITE}${ChatColor.BOLD}Move/Make${ChatColor.RESET}$lg (select control point)")
+                itemMeta.setCustomModelData(moveMakeId)
+                itemMeta.lore = (listOf("${dg}Left:$lg on control point to correct the mode","${dg}Right:$lg change mode","${dg}Spline:$lg [$name]"))
+                item.itemMeta = itemMeta
+                item.type = Material.ARROW
+                p.inventory.setItemInMainHand( item)
+                p.sendMessage("${title(name)} stopped moving")
+                return
+            }
+            else{
+                p.sendMessage("${title(name)} something went wrong, it seems this spline doesn't exist anymore")
+            }
         }
         else{
             if(BezierSplineController.addCurveToSpline(name,continuity)) {
@@ -123,12 +151,31 @@ object BezierTools {
         }
     }
 
+    fun getMovePoint(p: Player): Pair<Int,Int>?{
+        val item = p.inventory.itemInMainHand
+        val itemMeta = item.itemMeta
+        val pair : String = itemMeta?.lore!!.last().split('<','>')[1]
+        val curve : Int? = pair.split(',')[0].toIntOrNull()
+        val point : Int? = pair.split(',')[1].toIntOrNull()
+        if(curve == null || point == null) return null
+        return Pair(curve,point)
+    }
+
+    fun isUsingMoveMake(p: Player): String?{
+        val item: ItemStack = p.inventory.itemInMainHand
+        val meta = item.itemMeta ?: return null
+        if(meta.lore?.isEmpty() ?: return null ) return null
+        if(meta.customModelData%moveMakeId == 1)
+            return meta.lore!!.last().split('[',']')[1]
+        return null
+    }
+
     fun isHoldingMoveMake(p: Player) : Boolean
     {
         val item: ItemStack = p.inventory.itemInMainHand
         val meta = item.itemMeta ?: return false
         if(meta.lore?.isEmpty() ?: return false ) return false
-        return meta.customModelData == addMoveId
+        return meta.customModelData == moveMakeId
     }
 
     fun giveTools(p: Player, name:String){
@@ -147,7 +194,7 @@ object BezierTools {
         moveMeta?.addItemFlags(ItemFlag.HIDE_ENCHANTS)
         moveMeta?.setDisplayName("${ChatColor.WHITE}${ChatColor.BOLD}Move/Make${ChatColor.RESET}$lg (select control point)")
         moveMeta?.lore = (listOf("${dg}Left:$lg on control point to start moving it","${dg}Right:$lg add a curve to the end of the spline","${dg}Spline:$lg [$name]"))
-        moveMeta?.setCustomModelData(addMoveId)
+        moveMeta?.setCustomModelData(moveMakeId)
         move.itemMeta = moveMeta
 
         val undo = ItemStack(Material.ECHO_SHARD, 1)

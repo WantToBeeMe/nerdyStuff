@@ -1,21 +1,25 @@
 package me.wtbm.nerdystuff.bezierCurves
 
+import me.wtbm.nerdystuff.BetterTabCompleter
 import me.wtbm.nerdystuff.NerdyStuff
+import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.buildSpline
 import me.wtbm.nerdystuff.toString
 import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.createNewSpline
 import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.getSplines
+import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.makeSplineInt
+import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.startAnimation
 import me.wtbm.nerdystuff.bezierCurves.BezierSplineController.tryDeleteSpline
 import me.wtbm.nerdystuff.bezierCurves.BezierTools.giveTools
 import org.bukkit.ChatColor
+import org.bukkit.Material
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
-import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
-import java.util.HashMap
 
 
 object BezierCommand : CommandExecutor{
+    private val notAllowed : Array<String> = arrayOf("0","1","2","3","4","5","6","7","8","9","[","]","{","}","!",".","?",":",";",",") // characters that are not allowed in a name
     private val plugin get() = NerdyStuff.instance
     val title = "${ChatColor.GRAY}[${ChatColor.GOLD}Bezier${ChatColor.GRAY}]${ChatColor.RESET}"
     private val r = "${ChatColor.DARK_RED}" //red
@@ -24,6 +28,8 @@ object BezierCommand : CommandExecutor{
     private val hg : (String)-> String = {h -> "${ChatColor.GREEN}$h${ChatColor.DARK_GREEN}"} //highlight green
     private val help : (String)-> String = {h -> "${ChatColor.YELLOW}$h${ChatColor.WHITE}"} //new help keyword
     private val lg  = "${ChatColor.GRAY}" //light gray
+
+
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) {
@@ -34,13 +40,41 @@ object BezierCommand : CommandExecutor{
             help(sender)
             return true
         }
+        val args = (args.map { it.lowercase() }).toTypedArray()
         if(args[0] == "help") return help(sender)
-        if(args[0] == "new") return new(sender, args.copyOfRange(1, args.size))
         if(args[0] == "list") return list(sender, args.copyOfRange(1, args.size))
+        if(args[0] == "new") return new(sender, args.copyOfRange(1, args.size))
         if(args[0] == "delete") return delete(sender, args.copyOfRange(1, args.size))
         if(args[0] == "tools") return tools(sender, args.copyOfRange(1,args.size))
         if(args[0] == "options") return options(sender, args.copyOfRange(1,args.size))
+        if(args[0] == "build") return build(sender, args.copyOfRange(1,args.size))
         return true;
+    }
+
+    private fun build(p: Player, args: Array<out String>) : Boolean{
+        if(args.size < 2){
+            p.sendMessage("$title$r specify which one you want to get tools for ${hr("/bezier build <name> <block>")}")
+            return true
+        }
+
+        if(getSplines().containsKey(args[0])){
+           try{
+               val mat = Material.valueOf(args[1].uppercase())
+               if(buildSpline(args[0], mat.createBlockData() )){
+                   p.sendMessage("$title ${hg(args[0])} spline has been build with ${hg(args[1])}")
+                   p.sendMessage("$title ${hr(args[0])} note that this cant be undone, spline has been deleted from the list")}
+
+                else p.sendMessage("$title ${hr(args[0])} something went wrong")
+               return true
+            } catch (e: Exception) {
+               p.sendMessage("$title ${hr(args[0])} select the setting you want to change")
+               return true
+           }
+        }
+        else{
+            p.sendMessage("$title ${hr(args[0])} doesn't exist, therefore options cant be changed")
+            return true
+        }
     }
 
     private fun options(p: Player, args: Array<out String>) : Boolean{
@@ -50,9 +84,20 @@ object BezierCommand : CommandExecutor{
         }
 
         if(getSplines().containsKey(args[0])){
-            if(args[1].lowercase() == "makeint" )
+            if(args[1] == "makeint" ){
+                makeSplineInt(args[0])
+                p.sendMessage("$title ${hg(args[0])} all control points have been changed to its int equivalent")
+                p.sendMessage("$title$r note that this cant be undone, but you can move them to a non int value manually ")
+                p.sendMessage("$title$r this has an almost 100% chance of breaking every mirror/aligned continuity a tiny bit (not a lot though) ")
                 return true
-
+            }
+            else if(args[1] == "animate"){
+                val bool = startAnimation(args[0])
+                if(bool) p.sendMessage("$title$g animation started for ${hg(args[0])}")
+                else p.sendMessage("$title ${hr(args[0])} doesn't exist")
+                return true
+            }
+            p.sendMessage("$title ${hr(args[0])} select the setting you want to change")
             return true
         }
         else{
@@ -98,11 +143,11 @@ object BezierCommand : CommandExecutor{
             p.sendMessage("$title$r select what you want to do ${hr("/bezier new [curve/spline] <name>")}")
             return true
         }
-        if(args[0].lowercase() == "curve"){
+        if(args[0] == "curve"){
             p.sendMessage("$title$g cool, not implemented yet")
             return true
         }
-        else if(args[0].lowercase() == "spline"){
+        else if(args[0] == "spline"){
             //check if the name already exist in de curves here (if it's implemented at least)
             val bool = createNewSpline(p.location, args[1])
             giveTools(p, args[1])
@@ -122,11 +167,11 @@ object BezierCommand : CommandExecutor{
             p.sendMessage("$title$r select what you want to do ${hr("/list [curve/spline]")}")
             return true
         }
-        else if(args[0].lowercase() == "curve"){
+        else if(args[0] == "curve"){
             p.sendMessage("$title$g cool, not implemented yet")
             return true
         }
-        else if(args[0].lowercase() == "spline"){
+        else if(args[0] == "spline"){
             val splines = getSplines()
             p.sendMessage("${title} ${help(splines.size.toString())} total of splines")
             splines.forEach(){spline->
@@ -153,52 +198,28 @@ object BezierCommand : CommandExecutor{
 }
 
 
-object BezierTabCompleter : TabCompleter {
+object BezierTabCompleter : BetterTabCompleter {
 
-    override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>): List<String> {
-        val list : MutableList<String> = mutableListOf<String>();
+    override val keyWords: MutableList<Triple<String, Array<String>, Array<String>>> = mutableListOf(
+        Triple("help", arrayOf("0"),emptyArray()),
+        Triple("new", arrayOf("0"),emptyArray()),
+        Triple("delete",arrayOf("0"),emptyArray()),
+        Triple("build", arrayOf("0"),emptyArray()),
+        Triple("tools", arrayOf("0"),emptyArray()),
+        Triple("list", arrayOf("0"), emptyArray()),
+        Triple("curve", arrayOf("new", "list"),emptyArray()),
+        Triple("spline", arrayOf("new", "list"),emptyArray()),
+        Triple("options", arrayOf("0"), emptyArray()),
+    )
 
-        if (sender !is Player || args.isEmpty())
-            return list
+    override fun needsConstantUpdate() {
+        val splines = getSplines().keys.toTypedArray()
+        keyWords.add(Triple("makeInt", splines , arrayOf("options") ))
+        keyWords.add(Triple("animate", splines , arrayOf("options") ))
 
-        val keyWords: MutableMap<String, List<String>> = hashMapOf(
-            Pair("help", listOf("0")),
-            Pair("new", listOf("0")),
-            Pair("delete",listOf("0")),
-            Pair("build", listOf("0")),
-            Pair("tools", listOf("0")),
-            Pair("list", listOf("0")),
-            Pair("curve", listOf("new", "list")),
-            Pair("spline", listOf("new", "list")),
-            Pair("options", listOf("0")),
-            Pair("makeInt", getSplines().keys.toList() )
-        )
-        getSplines().forEach(){spline->
-            keyWords[spline.key] = listOf("delete", "build", "tools", "options")
-        }
+        splines.forEach(){spline-> keyWords.add(Triple(spline,  arrayOf("delete", "build", "tools", "options"), emptyArray())) }
+        Material.values().forEach { mat-> keyWords.add(Triple(mat.toString().lowercase(), splines, arrayOf("build"))) }
 
-        val size = args.size
-        val lastArg = args.last()
-        val  secondLastArg = if(size >= 2) args[size-2] else null
-        //val p : Player = sender
-        keyWords.forEach() pairs@ {pair ->
-            pair.value.forEach constrains@ {cons->
-                val maby = cons.toIntOrNull()
-                if(maby != null){
-                    if(maby == size-1 && pair.key.lowercase().startsWith(lastArg.lowercase())){
-                        list.add(pair.key)
-                        return@pairs
-                    }
-                }
-                else if(secondLastArg != null){
-                    if(cons == secondLastArg && pair.key.lowercase().startsWith(lastArg.lowercase())){
-                        list.add(pair.key)
-                        return@pairs
-                    }
-                }
-            }
-        }
-
-        return list;
     }
+
 }

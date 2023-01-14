@@ -39,8 +39,8 @@ class NerdyStuff : JavaPlugin() {
 
         getServer().getPluginManager().registerEvents(BezierToolsListener, this)
 
-        server.scheduler.scheduleSyncRepeatingTask(instance, { BezierSplineController.tick01() }, 0, 1)
         server.scheduler.scheduleSyncRepeatingTask(instance, { BezierSplineController.tick10() }, 0, 10)
+        server.scheduler.scheduleSyncRepeatingTask(instance, { BezierSplineController.tick1() }, 0, 1)
     }
 
     override fun onDisable() {}

@@ -4,7 +4,7 @@ import me.wtbm.nerdystuff.bezierCurves.BezierTools.ContinuityItem
 import me.wtbm.nerdystuff.bezierCurves.BezierTools.RemoveId
 import me.wtbm.nerdystuff.bezierCurves.BezierTools.RemoveItem
 import me.wtbm.nerdystuff.bezierCurves.BezierTools.continuityId
-import me.wtbm.nerdystuff.bezierCurves.BezierTools.addMoveId
+import me.wtbm.nerdystuff.bezierCurves.BezierTools.moveMakeId
 import me.wtbm.nerdystuff.bezierCurves.BezierTools.addMoveItem
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -29,7 +29,7 @@ object BezierToolsListener : Listener {
         if(meta.customModelData % RemoveId < 100){
             RemoveItem(p,left)
         }
-        else if(meta.customModelData % addMoveId < 100){
+        else if(meta.customModelData % moveMakeId < 100){
             addMoveItem(p,left)
         }
         else if(meta.customModelData % continuityId < 100){

@@ -1,7 +1,6 @@
 package me.wtbm.nerdystuff.bezierCurves
 
 import org.bukkit.Location
-import org.bukkit.World
 
 class CubicBezierCurve(ancLoc : Location,
                        conLoc1 : Location = ancLoc.clone().add((-10..10).random().toDouble(),(-10..10).random().toDouble(),(-10..10).random().toDouble()),
@@ -9,10 +8,10 @@ class CubicBezierCurve(ancLoc : Location,
                        conLoc2 : Location = knotLoc.clone().add((-10..10).random().toDouble(),(-10..10).random().toDouble(),(-10..10).random().toDouble())
 ) {
     var points: Array<Point> = arrayOf(
-        Point.newPoint(ancLoc, PointTypes.ANCHOR),
+        Point.newPoint(ancLoc, PointTypes.ANCHOR, 20),
         Point.newPoint(conLoc1),
         Point.newPoint(conLoc2),
-        Point.newPoint(knotLoc, PointTypes.KNOT)
+        Point.newPoint(knotLoc, PointTypes.KNOT,120)
     )
     var continuity : Continuity = Continuity.CONNECTED
     var LUT : MutableMap<Double, Double>? = null  //a cumulative Distance LookUpTable that translates a distance in to a T value
@@ -51,7 +50,7 @@ class CubicBezierCurve(ancLoc : Location,
 
 
     //generates a cumulative Distance LookUpTable that translates a distance in to a T value
-    fun generateDistLUT(amount : Int = (points[0].distanceTo(points[1]) + points[1].distanceTo(points[2]) + points[2].distanceTo(points[3])).toInt()) {
+    fun generateDistLUT(amount : Int = (points[0].distanceTo(points[1]) + points[1].distanceTo(points[2]) + points[2].distanceTo(points[3])).toInt() * 4) {
         if(amount < 2) return
         val s = 1.0 / amount;
         var currentT = s

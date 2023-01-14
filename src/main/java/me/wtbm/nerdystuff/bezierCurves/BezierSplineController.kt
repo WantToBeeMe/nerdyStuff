@@ -1,47 +1,56 @@
 package me.wtbm.nerdystuff.bezierCurves
 
 import me.wtbm.nerdystuff.NerdyStuff
-import me.wtbm.nerdystuff.bezierCurves.BezierTools.isHoldingMoveMake
+import me.wtbm.nerdystuff.bezierCurves.BezierTools.getMovePoint
+import me.wtbm.nerdystuff.bezierCurves.BezierTools.isUsingMoveMake
 import org.bukkit.Bukkit
-import org.bukkit.Color
 import org.bukkit.Location
-import org.bukkit.Particle
+import org.bukkit.block.data.BlockData
+
 
 object BezierSplineController {
     private val plugin get() = NerdyStuff.instance
     private val splines : MutableMap<String, BezierSpline> = hashMapOf()
 
-    fun tick01(){
 
-        Bukkit.getOnlinePlayers().forEach(){p->
-            if(isHoldingMoveMake(p)){
-                val loc = p.eyeLocation.add( p.eyeLocation.direction.multiply(12) )
-                val point = Location(p.world, 34.0 , 125.0 , 86.0)
-                p.spawnParticle(Particle.REDSTONE,point,50, Particle.DustOptions(
-                    Color.fromRGB(255 , 200 , 0), 1.7f))
-                /*
-                with P(-6, 1, 2) as point we here you check the distance
-                L: { as the line to check the distance from
-                    x = 2t + 2
-                    y = 3t + 3
-                    z = 7t + 5
-                    }
-                s = (2,3,7) the slope
-                s*distance = s*P
-                (2,3,7)*(x,y,z) = (2,3,7)*(-6,1,2)
-                (2x,3y,7z) = (-12,3,14)
-                2x + 3y + 7z = 5
-                2(2t + 2) + 3(3t + 3) 7(7t + 5) = 5
-                59t = 5-48
-                so the corresponding point on L to P is at t=((5-48) / 59)
-                 */
-                Bukkit.getLogger().info("${loc.blockX} , ${loc.blockY} , ${loc.blockZ}")
+    fun tick1(){
+        splines.forEach(){s->
+            Bukkit.getOnlinePlayers().forEach() { p ->
+                s.value.playAnimation(p)
             }
         }
     }
 
     fun tick10(){
+        run moveControlPoint@{
+            Bukkit.getOnlinePlayers().forEach() { p ->
+                val recalculate = isUsingMoveMake(p)
+                if (recalculate != null) {
+                    val pair : Pair<Int,Int> = getMovePoint(p) ?: return@moveControlPoint
+                    splines[recalculate]?.playerMovingPoint(p,pair.first,pair.second)
+                    return@moveControlPoint
+                }
+            }
+        }
         showBezier()
+    }
+
+    fun startAnimation(name: String) : Boolean{
+        if(!splines.containsKey(name)) return false
+        splines[name]?.startAnimation()
+        return true
+    }
+
+    fun buildSpline(name: String, block: BlockData) : Boolean {
+        if(!splines.containsKey(name)) return false
+        splines[name]?.build(block)
+        splines.remove(name)
+        return true
+    }
+    fun makeSplineInt(name: String) : Boolean {
+        if(!splines.containsKey(name)) return false
+        splines[name]?.makeInt()
+        return true
     }
 
     fun removeLast(name: String) : Boolean{
