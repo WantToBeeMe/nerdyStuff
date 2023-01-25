@@ -1,6 +1,10 @@
 package me.wtbm.nerdystuff.bezierCurves
 
+import me.wtbm.nerdystuff.abcFormula
+import org.bukkit.Bukkit
 import org.bukkit.Location
+import kotlin.math.max
+import kotlin.math.min
 
 class CubicBezierCurve(ancLoc : Location,
                        conLoc1 : Location = ancLoc.clone().add((-10..10).random().toDouble(),(-10..10).random().toDouble(),(-10..10).random().toDouble()),
@@ -42,11 +46,67 @@ class CubicBezierCurve(ancLoc : Location,
                 points[2] * (-18*t +6) +
                 points[3] * (6*t)
 
+
     fun getJolt(): Point = //P'''(t)   also no idea when you would ever need this lol, but it exists cause its possible
                 points[0] * (-6.0) +
                 points[1] * (18.0) +
                 points[2] * (-18.0) +
                 points[3] * (6.0)
+
+    fun getExtremeTs():List<Double>{
+        val ax = points[0].x*-3.0 + points[1].x*9.0 + points[2].x*-9.0 + points[3].x*3.0
+        val bx = points[0].x*6.0 + points[1].x*-12.0 + points[2].x*6.0
+        val cx = points[0].x*-3.0 + points[1].x*3.0
+
+        val ay = points[0].y*-3.0 + points[1].y*9.0 + points[2].y*-9.0 + points[3].y*3.0
+        val by = points[0].y*6.0 + points[1].y*-12.0 + points[2].y*6.0
+        val cy = points[0].y*-3.0 + points[1].y*3.0
+
+        val az = points[0].z*-3.0 + points[1].z*9.0 + points[2].z*-9.0 + points[3].z*3.0
+        val bz = points[0].z*6.0 + points[1].z*-12.0 + points[2].z*6.0
+        val cz = points[0].z*-3.0 + points[1].z*3.0
+
+        val tx = abcFormula(ax,bx,cx)
+        val ty = abcFormula(ay,by,cy)
+        val tz = abcFormula(az,bz,cz)
+
+        val returnList : MutableList<Double> = mutableListOf<Double>();
+        if(tx != null){
+            if( !returnList.contains(tx.first) && tx.first < 1.0 && tx.first > 0.0) returnList.add(tx.first)
+            if( !returnList.contains(tx.second) && tx.second < 1.0 && tx.second > 0.0) returnList.add(tx.second)
+        }
+        if(ty != null){
+            if( !returnList.contains(ty.first) && ty.first < 1.0 && ty.first > 0.0) returnList.add(ty.first)
+            if( !returnList.contains(ty.second) && ty.second < 1.0 && ty.second > 0.0) returnList.add(ty.second)
+        }
+        if(tz != null){
+            if( !returnList.contains(tz.first) && tz.first < 1.0 && tz.first > 0.0) returnList.add(tz.first)
+            if( !returnList.contains(tz.second) && tz.second < 1.0 && tz.second > 0.0) returnList.add(tz.second)
+        }
+
+        return returnList;
+    }
+    fun getBoundingBox():Pair<Point,Point>{
+        val start = pointAtT(0.0)
+        val end = pointAtT(1.0)
+        var minX = min(start.x, end.x)
+        var minY = min(start.y, end.y)
+        var minZ = min(start.z, end.z)
+        var maxX = max(start.x, end.x)
+        var maxY = max(start.y, end.y)
+        var maxZ = max(start.z, end.z)
+
+        val extremes: List<Double> = getExtremeTs()
+        extremes.forEach(){ t->
+            minX = min(minX, pointAtT(t).x)
+            minY = min(minY, pointAtT(t).y)
+            minZ = min(minZ, pointAtT(t).z)
+            maxX = max(maxX, pointAtT(t).x)
+            maxY = max(maxY, pointAtT(t).y)
+            maxZ = max(maxZ, pointAtT(t).z)
+        }
+        return Pair(Point(minX,minY,minZ), Point(maxX,maxY,maxZ))
+    }
 
 
     //generates a cumulative Distance LookUpTable that translates a distance in to a T value

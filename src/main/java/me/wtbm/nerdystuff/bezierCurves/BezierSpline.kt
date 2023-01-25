@@ -4,11 +4,14 @@ package me.wtbm.nerdystuff.bezierCurves
 import me.wtbm.nerdystuff.lookingAtPoint
 import org.bukkit.Color.fromRGB
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.World
 import org.bukkit.block.data.BlockData
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
+import kotlin.math.max
+import kotlin.math.min
 
 class BezierSpline(loc: Location) {
     private val cubicBezierCurves: MutableList<CubicBezierCurve> = mutableListOf(CubicBezierCurve(loc))
@@ -170,7 +173,37 @@ class BezierSpline(loc: Location) {
         return null
     }
 
+    //bounding box for the whole spline
+    //but take in concideration that in most of the cases its better to use the boundingbox per curve, instead of the whole spline
+    fun getBoundingBox():Pair<Location,Location>{
+        val first  = cubicBezierCurves[0].getBoundingBox()
+        var minX = first.first.x
+        var minY = first.first.y
+        var minZ = first.first.z
+        var maxX = first.second.x
+        var maxY = first.second.y
+        var maxZ = first.second.z
+
+        for(i in 1 until cubicBezierCurves.size){
+            val box = cubicBezierCurves[i].getBoundingBox()
+            minX = min(minX, box.first.x)
+            minY = min(minY, box.first.y)
+            minZ = min(minZ, box.first.z)
+            maxX = max(maxX, box.second.x)
+            maxY = max(maxY, box.second.y)
+            maxZ = max(maxZ, box.second.z)
+        }
+
+        return Pair(Location(this.world,minX,minY,minZ), Location(this.world,maxX,maxY,maxZ))
+    }
+
     fun build(block: BlockData){
+
+        //take in consideration that its probably better to just do it per curve, instead of the whole spline at once
+        val box = getBoundingBox()
+        world?.setBlockData(box.first, Material.DIAMOND_BLOCK.createBlockData())
+        world?.setBlockData(box.second, Material.DIAMOND_BLOCK.createBlockData())
+
         generatedLocations.forEach(){loc->
             world?.setBlockData(loc.key, block)
         }

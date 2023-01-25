@@ -212,14 +212,18 @@ object BezierTabCompleter : BetterTabCompleter {
         Triple("options", arrayOf("0"), emptyArray()),
     )
 
+    var oldSplines = getSplines().keys.toTypedArray()
     override fun needsConstantUpdate() {
         val splines = getSplines().keys.toTypedArray()
+
+        keyWords.removeIf { trip -> !splines.contains(trip.first) && oldSplines.contains(trip.first) }
+        oldSplines = splines;
+
         keyWords.add(Triple("makeInt", splines , arrayOf("options") ))
         keyWords.add(Triple("animate", splines , arrayOf("options") ))
 
         splines.forEach(){spline-> keyWords.add(Triple(spline,  arrayOf("delete", "build", "tools", "options"), emptyArray())) }
         Material.values().forEach { mat-> keyWords.add(Triple(mat.toString().lowercase(), splines, arrayOf("build"))) }
-
     }
 
 }
